@@ -588,6 +588,9 @@ int main(int argc, char *argv[]) {
     if ('-' ==(**argv)) {
       switch (*(++(*argv))) {
     
+      // NetBSD: -W is wide (adds pool page size, flags, usage, etc.)
+      // NetBSD: -t is content of vmtotal structure
+
       case 'V':
 	display_version();
 	exit(0);

@@ -574,7 +574,7 @@ static void parse_opts (int argc, char **argv)
 			opt_pidfile = strdup (optarg);
 			++criteria_count;
 			break;
-		case 'G':   // Solaris: match rgid/rgroup
+		case 'G':   // Solaris/OpenBSD: match rgid/rgroup
 	  		opt_rgid = split_list (optarg, conv_gid);
 			if (opt_rgid == NULL)
 				usage (opt);
@@ -591,7 +591,7 @@ static void parse_opts (int argc, char **argv)
 //			break;
 //		case 'N':   // FreeBSD: specify alternate namelist file (for us, System.map -- but we don't need it)
 //			break;
-		case 'P':   // Solaris: match by PPID
+		case 'P':   // Solaris/OpenBSD: match by PPID
 	  		opt_ppid = split_list (optarg, conv_num);
 			if (opt_ppid == NULL)
 				usage (opt);
@@ -601,7 +601,7 @@ static void parse_opts (int argc, char **argv)
 //			break;
 //		case 'T':   // Solaris: match by "task ID" (probably not a Linux task)
 //			break;
-		case 'U':   // Solaris: match by ruid/rgroup
+		case 'U':   // Solaris/OpenBSD: match by ruid/rgroup
 	  		opt_ruid = split_list (optarg, conv_uid);
 			if (opt_ruid == NULL)
 				usage (opt);
@@ -612,13 +612,13 @@ static void parse_opts (int argc, char **argv)
 			exit(EXIT_SUCCESS);
 //		case 'c':   // Solaris: match by contract ID
 //			break;
-		case 'd':   // Solaris: change the delimiter
+		case 'd':   // Solaris/OpenBSD: change the delimiter
 			opt_delim = strdup (optarg);
 			break;
-		case 'f':   // Solaris: match full process name (as in "ps -f")
+		case 'f':   // Solaris/OpenBSD: match full process name (as in "ps -f")
 			opt_full = 1;
 			break;
-		case 'g':   // Solaris: match pgrp
+		case 'g':   // Solaris/OpenBSD: match pgrp
 	  		opt_pgrp = split_list (optarg, conv_pgrp);
 			if (opt_pgrp == NULL)
 				usage (opt);
@@ -631,16 +631,16 @@ static void parse_opts (int argc, char **argv)
 //			break;
 //		case 'j':   // FreeBSD: restricted to the given jail ID
 //			break;
-		case 'l':   // Solaris: long output format (pgrep only) Should require -f for beyond argv[0] maybe?
+		case 'l':   // Solaris/OpenBSD: long output format (pgrep only) Should require -f for beyond argv[0] maybe?
 			opt_long = 1;
 			break;
-		case 'n':   // Solaris: match only the newest
+		case 'n':   // Solaris/OpenBSD: match only the newest
 			if (opt_oldest|opt_negate|opt_newest)
 				usage (opt);
 			opt_newest = 1;
 			++criteria_count;
 			break;
-		case 'o':   // Solaris: match only the oldest
+		case 'o':   // Solaris/OpenBSD: match only the oldest
 			if (opt_oldest|opt_negate|opt_newest)
 				usage (opt);
 			opt_oldest = 1;
@@ -658,19 +658,19 @@ static void parse_opts (int argc, char **argv)
 				usage (opt);
 			++criteria_count;
 			break;
-		case 'u':   // Solaris: match by euid/egroup
+		case 'u':   // Solaris/OpenBSD: match by euid/egroup
 	  		opt_euid = split_list (optarg, conv_uid);
 			if (opt_euid == NULL)
 				usage (opt);
 			++criteria_count;
 			break;
-		case 'v':   // Solaris: as in grep, invert the matching (uh... applied after selection I think)
+		case 'v':   // Solaris/OpenBSD: as in grep, invert the matching (uh... applied after selection I think)
 			if (opt_oldest|opt_negate|opt_newest)
 				usage (opt);
 	  		opt_negate = 1;
 			break;
 		// OpenBSD -x, being broken, does a plain string
-		case 'x':   // Solaris: use ^(regexp)$ in place of regexp (FreeBSD too)
+		case 'x':   // Solaris/OpenBSD: use ^(regexp)$ in place of regexp (FreeBSD too)
 			opt_exact = 1;
 			break;
 //		case 'z':   // Solaris: match by zone ID

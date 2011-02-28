@@ -76,8 +76,8 @@ static unsigned max_leftward = 0x12345678; /* space for LEFT stuff */
 
 static int wide_signals;  /* true if we have room */
 
-static unsigned long seconds_since_1970;
-static unsigned long time_of_boot;
+static time_t seconds_since_1970;
+static time_t time_of_boot;
 static unsigned long page_shift;
 
 
@@ -273,7 +273,15 @@ SZ		swappable size in kB of the virtual data and stack
 STIME	stime	hms or md time format
 ***/
 
-/* Source & destination are known. Return bytes or screen characters? */
+// Source & destination are known. Return bytes or screen characters?
+// Currently they match, but using UTF-8 or VT100 would break that.
+//
+//       OldLinux   FreeBSD    HPUX
+// ' '    '    '     '  '      '  '
+// 'L'    ' \_ '     '`-'      '  '
+// '+'    ' \_ '     '|-'      '  '
+// '|'    ' |  '     '| '      '  '
+//
 static int forest_helper(char *restrict const outbuf){
   char *p = forest_prefix;
   char *q = outbuf;
@@ -338,7 +346,7 @@ static int pr_args(char *restrict const outbuf, const proc_t *restrict const pp)
   unsigned flags;
   int rightward=max_rightward;
 
-  if(forest_prefix){
+  if(forest_type){
     int fh = forest_helper(outbuf);
     endp += fh;
     rightward -= fh;
@@ -365,7 +373,7 @@ static int pr_comm(char *restrict const outbuf, const proc_t *restrict const pp)
   unsigned flags;
   int rightward=max_rightward;
   
-  if(forest_prefix){
+  if(forest_type){
     int fh = forest_helper(outbuf);
     endp += fh;
     rightward -= fh;
@@ -390,7 +398,7 @@ static int pr_fname(char *restrict const outbuf, const proc_t *restrict const pp
   char *endp = outbuf;
   int rightward = max_rightward;
   
-  if(forest_prefix){
+  if(forest_type){
     int fh = forest_helper(outbuf);
     endp += fh;
     rightward -= fh;
@@ -420,6 +428,12 @@ static int pr_etime(char *restrict const outbuf, const proc_t *restrict const pp
   cp +=( (dd || hh)  ?  snprintf(cp, COLWID, "%02u:", hh)         :  0 );
   cp +=                 snprintf(cp, COLWID, "%02u:%02u", mm, ss)       ;
   return (int)(cp-outbuf);
+}
+
+/* elapsed wall clock time in seconds */
+static int pr_etimes(char *restrict const outbuf, const proc_t *restrict const pp){
+  unsigned t = seconds_since_boot - (unsigned long)(pp->start_time / Hertz);
+  return snprintf(outbuf, COLWID, "%u", t);
 }
 
 /* "Processor utilisation for scheduling."  --- we use %cpu w/o fraction */
@@ -945,7 +959,7 @@ static int pr_start(char *restrict const outbuf, const proc_t *restrict const pp
   str = ctime(&t);
   if(str[8]==' ')  str[8]='0';
   if(str[11]==' ') str[11]='0';
-  if((unsigned long)t+60*60*24 > seconds_since_1970)
+  if((unsigned long)t+60*60*24 > (unsigned long)seconds_since_1970)
     return snprintf(outbuf, COLWID, "%8.8s", str+11);
   return snprintf(outbuf, COLWID, "  %6.6s", str+4);
 }
@@ -1321,6 +1335,7 @@ static const format_struct format_array[] = {
 {"environ","ENVIRONMENT",pr_nop,      sr_nop,    11, ENV,    LNx, PO|UNLIMITED},
 {"esp",       "ESP",     pr_esp,      sr_kstk_esp, 8,  0,    LNX, TO|RIGHT},
 {"etime",     "ELAPSED", pr_etime,    sr_nop,    11,   0,    U98, ET|RIGHT}, /* was 7 wide */
+{"etimes",    "ELAPSED", pr_etimes,   sr_nop,     7,   0,    BSD, ET|RIGHT}, /* FreeBSD */
 {"euid",      "EUID",    pr_euid,     sr_euid,    5,   0,    LNX, ET|RIGHT},
 {"euser",     "EUSER",   pr_euser,    sr_euser,   8, USR,    LNX, ET|USER},
 {"f",         "F",       pr_flag,     sr_flags,   1,   0,    XXX, ET|RIGHT}, /*flags*/
