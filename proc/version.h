@@ -20,6 +20,8 @@ extern const char procps_version[];		/* global buf for suite version */
 extern int linux_version_code;		/* runtime version of LINUX_VERSION_CODE
 					   in /usr/include/linux/version.h */
 
+extern void init_Linux_version(void);
+
 /* Convenience macros for composing/decomposing version codes */
 #define LINUX_VERSION(x,y,z)   (0x10000*(x) + 0x100*(y) + z)
 #define LINUX_VERSION_MAJOR(x) (((x)>>16) & 0xFF)
